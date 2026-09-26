@@ -1,0 +1,14 @@
+Resuemen: Chat grupal en el que multiples usuarios conectados a una misma
+red local envien y reciban mensajes (similar a whatsapp) de manera simultanea
+
+Todos los usuarios serán nodos iguales (peers) y se comunicaran usando un mismo
+canal mediante Multicast UDP, gestionando la concurrencia con hilos independientes
+
+Requisitos tecnicos:
+Cada instancia de la aplicacion tiene 2 hilos simultaneos:
+    - Hilo de emision: Lee continuamente el texto que el usuario escribe por consola
+    cuando el usuario envia (con enter) el hilo empaqueta el texto y lo envia al multicast
+    - Hilo de recepcion: En segundo plano, escucha el socket multicast de manera continua,
+    cuando recibe un mensaje, lo desempaqueta y lo muestra por consola
+
+
