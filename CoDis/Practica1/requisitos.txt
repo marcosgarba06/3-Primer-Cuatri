@@ -11,4 +11,12 @@ Cada instancia de la aplicacion tiene 2 hilos simultaneos:
     - Hilo de recepcion: En segundo plano, escucha el socket multicast de manera continua,
     cuando recibe un mensaje, lo desempaqueta y lo muestra por consola
 
+Protocolo de comunicacion:
+    Nickname: Mensaje
+    Nickname es el nombre de usuario unico elegido por el usuario (no puede tener:)
+    : es el separador de nomre y mensaje
+    Mensaje es el texto que se desea transmitir
+
+    Se tiene que verificar que nickname no es el propio usuario, asi no se ve doble el mensaje y cuando llega un mensaje
+    de si mismo se descx
 
