@@ -1,0 +1,14 @@
+Se divide en 4 clases:
+    Practica1/
+    └── src/
+       ├── Main.java
+       ├── ChatMulticast.java
+       ├── HReceptor.java
+       └── Mensaje.java
+
+    - Main llama al método iniciar de ChatMulticast, esto se hace para tener una mejor estructura
+    - ChatMulticast tiene las constantes de red, el nickname, socket, lanzamiento del hilo y bucle de emisión,
+    es decir, es el centro del proyecto.
+    - HReceptor recibe, filtra e imprime el mensaje
+    - Mensaje parsea el contenido del mensaje y lo junta como un objeto de tipo Mensaje.
+
