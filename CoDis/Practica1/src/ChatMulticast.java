@@ -1,7 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 import java.util.Scanner;
@@ -10,19 +9,19 @@ public class ChatMulticast {
     private static final String IPMulticast = "239.1.2.3";
     private static final int puerto = 6000;
 
-    private Scanner scanner = new Scanner(System.in);
+    private final Scanner scanner = new Scanner(System.in);
     private String nickname;
 
     private MulticastSocket socket;
     private InetAddress grupo;
-    private HReceptor receptor;
+
     // se inicia el chat multicast, pidiendo el nombre de usuario y creando el socket multicast
     public void iniciar(){
         pedirNickname(); // primero se pide el nombre de usuario
 
         try {
             crearSocketMulticast(); // se crea el socket multicast y se une al grupo
-            receptor = new HReceptor(socket, nickname); // se crea el hilo receptor
+            HReceptor receptor = new HReceptor(socket, nickname); // se crea el hilo receptor
             receptor.lanzarHiloRec(); // se lanza el hilo receptor
 
             System.out.println("Conectado al chat como " + nickname);
@@ -52,9 +51,20 @@ public class ChatMulticast {
 
     // método que crea el socket multicast y se une al grupo
     private void crearSocketMulticast() throws IOException {
-        grupo = InetAddress.getByName(IPMulticast); // pasa la dirección IP multicast a un objeto de direccion
-        socket = new MulticastSocket(puerto); // se crea el socket multicast en el puerto
-        socket.joinGroup(new InetSocketAddress(grupo, puerto), null); // se une al grupo multicast
+        try{
+            socket = new MulticastSocket(puerto); // se crea el socket multicast en el puerto
+
+        } catch (IOException e) {
+            System.err.println("Error al crear el socket multicast: " + e.getMessage());
+        }
+
+        try{
+            grupo = InetAddress.getByName(IPMulticast); // pasa la dirección IP multicast a un objeto de direccion
+            socket.joinGroup(grupo); // se une al grupo multicast
+        }catch (IOException e) {
+            System.err.println("Error al unirse al grupo multicast: " + e.getMessage());
+        }
+
     }
 
     private void enviarMsj(String texto) throws IOException {

@@ -4,10 +4,10 @@ import java.net.MulticastSocket;
 import java.nio.charset.StandardCharsets;
 
 public class HReceptor implements Runnable { // implementa runnable para que pueda ser ejecutado en un hilo
-    public static final int tamañoBuffer = 1024; // tamaño del buffer de recepción
+    public static final int tamBuffer = 1024; // tamaño del buffer de recepción
 
-    private MulticastSocket socket; // socket multicast para recibir mensajes
-    private String nickname; // nombre de usuario del receptor
+    private final MulticastSocket socket; // socket multicast para recibir mensajes
+    private final String nickname; // nombre de usuario del receptor
 
     // constructor
     public HReceptor(MulticastSocket socket, String nickname) {
@@ -20,7 +20,7 @@ public class HReceptor implements Runnable { // implementa runnable para que pue
     public void run() {
         while (true) {
             DatagramPacket paquete;
-            paquete = new DatagramPacket(new byte[tamañoBuffer], tamañoBuffer);
+            paquete = new DatagramPacket(new byte[tamBuffer], tamBuffer);
             try {
                 socket.receive(paquete); // se recibe el paquete y es bloqueante hasta que llegue un paquete
             }catch (IOException e) {
@@ -30,7 +30,16 @@ public class HReceptor implements Runnable { // implementa runnable para que pue
 
             //se obtiene el mensaje del paquete y se decodifica a string
             String msjRec = new String(paquete.getData(), 0, paquete.getLength(), StandardCharsets.UTF_8);
-            System.out.println(msjRec);
+            //System.out.println(msjRec);
+
+            Mensaje msj = Mensaje.separarMensaje(msjRec); // se separa el mensaje en nickname y texto
+
+            if (msj.getNickname().equals(nickname) || msj.getTexto().isEmpty()) // pasar si es el mismo usuario o si el mensaje está vacío
+                continue;
+
+            // se imprime el mensaje recibido
+            System.out.println(msj.imprimirMensaje());
+
         }
     }
 

@@ -2,8 +2,8 @@ public class Mensaje {
     public static String delimitador = ":"; // se indica el caracter que separa nickname de mensaje (NICKNAME:MENSAJE)
 
     // variables para almacenar las strings de nickname y texto
-    private String nickname;
-    private String texto;
+    private final String nickname;
+    private final String texto;
 
     // constructor de la clase Mensaje
     public Mensaje(String nickname, String texto) {
