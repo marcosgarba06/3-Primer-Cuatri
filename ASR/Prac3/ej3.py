@@ -53,6 +53,7 @@ def main():
     args = parsear.parse_args() # recogemos los valores introducidos
     lineas = leerArchivo(args.fichero)
     comprobarBalance(lineas)
- 
+
+# hacer que main() se ejecute solo si se ejecuta el script directamente 
 if __name__ == "__main__":
     main()
