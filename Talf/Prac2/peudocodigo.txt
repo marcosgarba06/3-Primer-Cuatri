@@ -1,0 +1,23 @@
+Pseudocodigo para un AFD
+
+estadoActual = estadoInicial
+for each simbolo in cadEntrada:
+    estadoActual = transicion[estadoActual][simbolo]
+if estadoActual in estadosFinales:
+    print "cadena aceptada"
+else:
+    print "cadena rechazada"
+
+Pseudocodigo para AFN
+
+actuales = clausura_e(estadoInicial)
+for each simbolo in cadEntrada:
+    siguientes={}
+    for each estado in actuales:
+        for each estadoDestino in transiciones[estado][simbolo]:
+            siguientes.update(clausura_e(estadoDestino))
+        actuales = siguientes
+if len(interseccion(actuales, finales)) > 0:
+    print "cadena aceptada"
+else:
+    print "cadena rechazada"
