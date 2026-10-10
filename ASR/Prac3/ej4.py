@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+
 import argparse, random, string, sys
 
 def obtenerSimbolosPuntuacion():
