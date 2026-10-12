@@ -1,0 +1,100 @@
+ESTRUCTURA DE LA PRACTICA: INTEGRACION NUMERICA DISTRIBUIDA CON JAVA RMI (nivel 8 puntos)
+========================================================================================
+
+Archivos del proyecto (base: ejemplo Hello de M. L. Liu):
+
+MonteCarloInterface.java   <- MonteCarloInterface
+MonteCarloImpl.java        <- MonteCarloImpl
+MonteCarloServer.java      <- MonteCarloServer
+HiloCliente.java           (nueva, no existe en Hello)
+MonteCarloClient.java      <- MonteCarloClient
+
+Orden de desarrollo (apuntes 3.7): interfaz -> implementacion -> servidor -> hilo -> cliente.
+Nota: en Java moderno el stub se genera automaticamente, por lo que no hace falta rmic.
+
+
+MonteCarloInterface: el contrato
+    - Por qué implementarlo: Java RMI exige una metodología basada en interfaces para definir el contrato entre el cliente y el servidor.
+    - Que se hará en ella: Esta clase sera una interfaz pública que herede de java.rmi.Remote. Solo contendrá la firma de un método
+    (por ejemplo, calcularPuntosBajoCurva) que recibirá como parametro la cantidad de puntos a calcular.
+    - Tipos: tanto el parametro como el valor devuelto serán de tipo long (N puede ser del orden de 100.000.000 o mas). Al ser tipos
+    primitivos, no hace falta crear clases Serializable (apuntes 4.4).
+    - Restricciones: Por regla de oro de RMI, este método deberá declarar explícitamente que lanza una java.rmi.RemoteException.
+
+
+MonteCarloImpl: el trabajo real
+    - Por qué implementarlo: Es la clase que contendrá la logica de negocio real, es decir, el cálculo matemático.
+    - Que se hará en ella: Deberá implementar la interfaz MonteCarloInterface descrita en el punto anterior.
+    Además, heredará de la clase java.rmi.server.UnicastRemoteObject para facilitar que el objeto sea exportable a la red.
+    Contendrá un constructor vacío que también lance RemoteException (y que llame a super()).
+    - Lógica de cálculo: En el método sobrescrito, se programará la logica de Monte Carlo. Deberá generar las coordenadas aleatorias (x, y)
+    tantas veces como indique el parametro recibido. Para cada punto, evaluará si cumple la condición matematica y <= e^(-x^2).
+    Finalmente, contabilizará cuantos puntos cumplieron la condición y devolverá ese valor.
+    - Thread safety (importante): RMI ejecuta cada petición en su propio hilo (apuntes 3.7), por lo que el código debe ser thread safe.
+    El contador de aciertos y el generador aleatorio (Random) deben ser VARIABLES LOCALES del método, nunca atributos de la clase.
+    Cada llamada usa un Random propio, sin semilla fija.
+
+
+MonteCarloServer.java (El Lanzador del Servidor)
+    - Por qué implementarlo: Se necesita un programa principal que ponga en marcha el registro y publique el objeto remoto en la red.
+    - Que se hará en ella: Contendrá un método main. Su primera tarea será iniciar el registro RMI mediante LocateRegistry.createRegistry
+    o verificar que ya está corriendo (método auxiliar startRegistry del ejemplo Hello).
+    - Parámetros: el puerto del registro se recibe como ARGUMENTO de línea de comandos, para poder lanzar varias instancias sin tocar el código.
+    - Publicación: Instanciará un objeto de tipo MonteCarloImpl y lo registrará utilizando el método Naming.rebind, asignándole un
+    nombre específico (una URL RMI). Para tener varios servidores, este proceso se ejecutará varias veces en diferentes puertos
+    (o en diferentes máquinas), de manera que el cliente tenga disponibles multiples objetos remotos independientes.
+    - Convención: un registro por servidor (un puerto distinto cada uno) y el MISMO nombre de servicio en todos ellos.
+    La dirección de cada servidor es, por tanto, un par host:puerto.
+    - Opcional: mostrar el contenido del registro al arrancar (método listRegistry del ejemplo Hello) para comprobar que quedo registrado.
+
+
+HiloCliente.java (La Tarea Concurrente)
+    - Por qué implementarlo: El aspecto fundamental de esta práctica es que el cliente no puede hacer las peticiones de forma secuencial,
+    debe hacerlo en paralelo para mejorar el tiempo de ejecución.
+    - Que se hará en ella: Se implementará como una clase que implemente la interfaz Runnable (apuntes 2.7.1).
+    - Estado y ejecución: En su constructor, recibirá dos datos: la referencia al objeto remoto del servidor con el que se va a comunicar
+    (tipo MonteCarloInterface) y el número exacto de puntos que le toca calcular a ese servidor. Dentro del método run(), se realizará
+    la llamada remota al servidor pasándole su cuota de puntos. Guardara el resultado parcial devuelto por el servidor en una variable
+    accesible para el cliente principal (con un método getter).
+    - Gestion de errores: si la llamada remota lanza una RemoteException, run() la captura (no la propaga) y guarda que hubo un fallo,
+    accesible también desde el cliente principal. Asi el cliente nunca suma un resultado parcial inexistente (cuestiones 6 y 7).
+    - Opcional: guardar el tiempo que tardo esa llamada concreta, util para analizar servidores con distinta velocidad (cuestiones 8 y 9).
+    - Sincronización: no hace falta synchronized. Cada hilo escribe solo en SU objeto, y el cliente lee los resultados después del join().
+
+
+MonteCarloClient.java (El Cliente Coordinador)
+    - Por qué implementarlo: Es el orquestador principal que interactúa con el usuario, reparte el trabajo y agrupa los resultados.
+    - Entrada y búsqueda: El número total de puntos N y la lista de servidores (uno por argumento, con formato host:puerto) se reciben
+    como ARGUMENTOS de línea de comandos. El cliente no puede descubrir servidores por si solo; el número de servidores S sale de esa lista.
+    Para cada servidor se construye la URL RMI y se usa Naming.lookup, guardando la referencia con un casting a la INTERFAZ remota
+    (nunca a MonteCarloImpl). Si algún lookup falla, el cliente aborta con un mensaje claro indicando que servidor no responde.
+    - Distribución del trabajo: Dividirá el total de puntos entre los servidores de forma equilibrada. Cada servidor recibe N / S
+    (division entera) y el resto (N % S) se reparte DE UNO EN UNO entre los primeros servidores. Asi la suma es exactamente N y la
+    diferencia de carga entre servidores nunca supera 1 punto.
+    Ejemplo: N = 10.000.003 y 4 servidores -> tres reciben 2.500.001 y uno recibe 2.500.000.
+    - Gestion de hilos y tiempos: Tras los lookup, e inmediatamente antes de crear los hilos, iniciará un temporizador (System.nanoTime()).
+    Creará tantas instancias de HiloCliente como servidores haya, las envolverá en objetos Thread y arrancará TODOS llamando a start()
+    en un primer bucle.
+    - Resultados: En un SEGUNDO bucle, separado del anterior, usará join() sobre cada hilo para esperar a que todos los servidores terminen.
+    (Si el join() estuviera en el mismo bucle que el start(), la ejecución sería secuencial y no se cumpliría el objetivo de la práctica.)
+    Justo tras el último join() detendrá el temporizador, de modo que el tiempo medido incluye creación y sincronización de hilos,
+    coste de RMI y cálculo, pero no la suma final ni la impresión.
+    - Combinación: Comprobará si algún hilo registro un fallo; en ese caso lo indicará y no presentará una integral calculada con
+    datos incompletos. Si todo fue bien, sumará todos los resultados parciales, calculará la aproximación final de la integral
+    dividiendo los aciertos entre los puntos totales y mostrara por pantalla el resultado, el tiempo total y, opcionalmente,
+    la diferencia con el valor de referencia (0.7468241328).
+
+
+COMPILACIÓN Y EJECUCIÓN (a documentar en la entrega)
+    1. Compilar todos los .java con javac.
+    2. Lanzar S servidores, cada uno con un puerto distinto (por ejemplo 1099, 1100, 1101, 1102).
+    3. Lanzar el cliente indicando N y la lista host:puerto de los servidores.
+    - Se puede preparar un script que compile y otro que lance S servidores en puertos consecutivos para repetir los experimentos
+    con 1, 2, 4 y 8 servidores.
+
+
+A TENER EN CUENTA EN LA MEMORIA
+    - Si los servidores se ejecutan todos en la misma máquina, comparten los mismos núcleos de CPU: el speedup quedará limitado por él
+    número de núcleos. Debe mencionarse en el análisis del rendimiento (apartado 7 del enunciado).
+    - Dejar fijado y documentado desde que punto a que punto se mide el tiempo (ver MonteCarloClient).
+    - Usar el mismo N en todos los experimentos (1, 2, 4 y, si es posible, 8 servidores).
