@@ -39,7 +39,7 @@ public class HiloCliente implements Runnable {
             res = sv.calcularPuntosBajoCurva(pts); // llamada remota al servidor para calcular los puntos bajo la curva
         }catch (RemoteException e) {
             error = true; // si hay un error en la llamada remota, se marca el error
-            System.out.println("Error al calcular puntos bajo curva: ñ" + e);
+            System.out.println("Error al calcular puntos bajo curva: " + e);
         }
         // calcurar tiempo que tardo la llamada remota
         long fin = System.nanoTime();

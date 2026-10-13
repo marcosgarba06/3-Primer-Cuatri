@@ -37,10 +37,11 @@ public class MonteCarloServer {
             // se registra el obj remoto con un nombre (la url) en el regirstro rmi
             Naming.rebind(urlRegistro, exportedObj);
 
-            System.out.println("Servidor registrado.  Registro actual contiene:");
+            System.out.println("Objeto publicado como rmi en: " + urlRegistro);
+
             // lista nombres actualmente en el registro rmi
-            listarRegistro(urlRegistro);
-            System.out.println("MonteCarloServer listo en el puerto " + puerto);
+            listarRegistro(urlRegistro, puerto);
+            //System.out.println("MonteCarloServer listo en el puerto " + puerto);
         }
         catch (Exception re) { // captura cualquier error y la imprime
             System.out.println("Excepción en MonteCarloServer.main: " + re);
@@ -56,20 +57,20 @@ public class MonteCarloServer {
         }
         catch (RemoteException e) {
             // No hay un registro válido en ese puerto
-            System.out.println("No se encuentra un registro RMI en el puerto " + puerto);
+            //System.out.println("No se encuentra un registro RMI en el puerto " + puerto);
 
             // Si la excepción saltó, se crea el registro RMI desde el código
             Registry registro = LocateRegistry.createRegistry(puerto);
-            System.out.println("Registro RMI creado en el puerto " + puerto);
+            //System.out.println("Registro RMI creado en el puerto " + puerto);
         }
     }
 
     // Muestra los nombres que hay registrados en el registro
-    private static void listarRegistro(String urlRegistro) throws RemoteException, MalformedURLException {
-        System.out.println("El registro " + urlRegistro + " contiene: ");
+    private static void listarRegistro(String urlRegistro, int puerto) throws RemoteException, MalformedURLException {
+        System.out.println("Servicios en el registro del puerto " + puerto + ":");
         String[] nombres = Naming.list(urlRegistro); // array de Strings con todos los servicios en el rmiregistry
 
-        for (int i = 0; i < nombres.length; i++) // recorre el array y los imprime
-            System.out.println(nombres[i]);
+        for(int i = 0; i < nombres.length; i++) // recorre el array y los imprime
+            System.out.println("    - " + nombres[i]);
     }
 }
