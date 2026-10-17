@@ -1,0 +1,6 @@
+#2 P I
+#1 P
+#2 0 1
+--TABLA DE TRANSICIONES--
+P # I # #
+I I # P # #

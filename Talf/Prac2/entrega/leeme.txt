@@ -1,0 +1,74 @@
+Archivo de Marcos García Blanco
+
+1. REQUISITOS:
+    Para la ejecución de este ejercicio el único requisito es tener
+    instalada una version de python3. No hace falta nada mas ya que 
+    todas las librerias usadas (argparse y sys) pertenecen a python
+    base.
+
+2. Archivo ejecutable: Unicamente el archivo llamado automata.py
+
+3. Pasos previos para poder ejecutar el archivo:
+    
+    Hay que darle permisos de ejecución al archivo automata.py. 
+    En caso de estar en linux se hace con el comando chmod +x 
+    automata.py.
+
+    Para ejecutarlo en linux o MacOS una vez dados los permisos, 
+    se puede lanzar directamente con ./automata.py o bien usando
+    el comando de python3: python3 automata.py.
+
+    En caso de estar en Windows, no es necesario dar permisos de 
+    ejecución. Se ejecuta directamente desde la terminal (CMD o 
+    PowerShell) usando el comando python automata.py (o python3 
+    automata.py). 
+
+4. FORMAS DE EJECUCIÓN:
+    Hay 2 formas de comprobar la ejecución de un automata a partir
+    de su txt de definicion. Hay que tener en cuenta que el nombre
+    del archivo es un parametro obligatorio y se le debe pasar por
+    comandos siempre. Las 2 formas de comprobar una cadena son:
+
+    A) Pasando la cadena como argumento por consola:
+       Se indica el fichero del automata seguido de la cadena que se
+       quiere simular:
+        ./automata.py <archivo> [cadena]
+        (o bien: python3 automata.py <archivo> [cadena])
+
+        Donde "<archivo>" es el fichero que define el autómata y "[cadena]"
+        es la secuencia de caracteres a simular (ej: 152ac22bd1c2c).
+        Si la cadena contiene espacios, se pueden usar comillas dobles.
+        Los espacios se interpretan como pasos con la cadena vacía (epsilon)
+        que no consumen símbolo.
+    
+    B) Modo interactivo (introduciendo la entrada por teclado):
+        Si solo se indica el fichero del autómata sin pasar la cadena por argumentos:
+            ./automata.py <archivo>
+            (o bien: python3 automata.py <archivo>)
+
+        El programa cargará el autómata y abrirá una consola interactiva
+        donde irá acumulando y simulando la secuencia paso a paso. En cada
+        turno se pueden introducir las siguientes opciones:
+        
+        - Escribir uno o varios símbolos (o pegar una cadena entera) y pulsar 
+          Enter: se añadirán a la secuencia actual y se mostrará la simulación 
+          actualizada de golpe. Por lo tanto si se quiere simular paso a paso
+          se debe introducir un unico caracter del alfabeto por cada vez qus se 
+          pulse Enter.
+        
+        - Pulsar Enter sin escribir nada: simula un paso con la cadena vacía 
+          (epsilon) sin consumir ningún símbolo.
+
+        - Escribir "!l" y pulsar Enter: limpia la cadena de entrada acumulada 
+          y reinicia la simulación desde el estado inicial. De esta forma se 
+          pueden simular varias cadenas distintas en la misma ejecución
+
+        - Escribir "!q" y pulsar Enter: finaliza y sale del programa.
+
+5. AYUDA:
+    Al usar argparse se puede ver un resumen de los argumentos 
+    disponibles ejecutando:
+
+    ./automata.py -h
+    (o bien: python3 automata.py -h)
+
