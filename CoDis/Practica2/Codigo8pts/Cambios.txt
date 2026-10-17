@@ -1,0 +1,54 @@
+La carga dinámica la hace el cliente, por tanto no es necesario hacer cambios
+en los servidores.
+    - MonteCarloInterface.java: No cambia. El método ya sirve: “calcula estos N puntos”.
+    Un bloque es solo una llamada con menos puntos
+    - MonteCarloImpl.java: No cambia. No tiene estado y usa variables locales, así que
+    puede atender muchas llamadas seguidas sin problema. Cada llamada crea su propio Random,
+    y cada bloque sale independiente.
+    - MonteCarloServer.java: No cambia. Publica el objeto igual que antes.
+    - HiloCliente.java: Sí, es el mayor cambio. Ya no hace una llamada, sino un bucle que
+    va pidiendo bloques.
+    - MonteCarloClient.java: Cambia. Deja de repartir al principio y pasa a preparar
+    la “bolsa” de trabajo.
+
+
+    Antes el cliente repartía todos los puntos al principio. Ahora hay un contador compartido de
+    “puntos pendientes” y cada hilo repite lo siguiente:
+        1. Coge un bloque del contador.
+        2. Lo manda a su servidor.
+        3. Cuando el servidor responde, coge otro bloque.
+        4. Termina cuando no quedan puntos.
+    Así el servidor rápido pide más bloques que el lento, y el reparto se equilibra solo. Sigue
+    habiendo un hilo por servidor, como pide el enunciado.
+
+
+    Cambios en HiloCliente.java:
+        - Se elimina la variable puntos y se crean 2 variables estáticas compartidas: puntosPendientes y bloque.
+        Al ser estaticas, todos los hilos ven el mismo valor.
+        - La variable res ya no guarda el resultado de la llamada, sino que acumula el resultado de todos los
+        bloques que ha pedido el hilo.
+        - Del constructor se elimina lo de pts. Ahora solo se pasa el servidor y se inicializa el resultado a 0.
+        - Se crea un metodo nuevo iniciarReparto(long total, long bloque) que inicializa las variables estáticas compartidas.
+        Se llama desde el main una vez, para dejar establecido el tamaño total y el de los bloques. Es static porque prepara
+        los datos compartidos. No necesita synchronized, porque se llama antes de hacer start() y todavía no hay hilos compitiendo.
+        - El metodo importante es private static synchronized long siguienteBloque(): Devuelve cuantos puntos tiene cada bloque
+        y decrementa el contador de puntos pendientes. Devuelve 0 si ya no quedan puntos. Es synchronized porque varios hilos pueden
+        pedir bloques a la vez. synchronized: es la sección crítica de los apuntes (2.7.3). Sin ella, dos hilos podrían leer el mismo
+        pendientes a la vez, coger el mismo bloque y descontar mal. Entonces el total procesado ya no sería N.
+        - static synchronized: los apuntes dicen que un método synchronized normal usa como cerrojo this. Pero cada hilo tiene su
+        propio objeto HiloCliente, así que cada uno cerraría su propio cerrojo y no se excluirían entre sí. Al ser static, el cerrojo
+        es la clase, que es única para todos los hilos.
+        - cambios en run(): ahora primero pide un bloque y con un while mira que no es 0 y hace la llamada al servidor de ese bloque
+        sumando el resultado a res (iniciado a 0). Cuando el bloque es 0 sale del bloque y termina el hilo.
+
+    Cambios en MonteCarloClient.java:
+        - Se modifican los argumentos a main para que ahora reciba uno mas (el tam del bloque). Por tanto ahora ya no es argumentos -1 el
+        numero de servers si no -2 porque ahora hay 2 argumentos.
+        - En el try del main despues de comprobar que N es positivo hay que comprobar que el tamaño del bloque tmb lo es
+        - En la busqueda de los servidores, antes se hacía ipPuerto = args[i + 1].trim(); ahora es ipPuerto = args[i + 2].trim(); porque
+        hay un argumento mas al principio.
+        - Se elimina  //long[] cuotas = repartirPuntos(numPts, numSvEncontrados); // se reparten los puntos entre los servidores disponibles
+        y se cambia por HiloCliente.iniciarReparto(numPts, tamBloque); // se inicializa el contador de puntos totales y pendientes para los hilos
+        ya que ahora no hay cuotas calculadas por adelantado.
+
+
