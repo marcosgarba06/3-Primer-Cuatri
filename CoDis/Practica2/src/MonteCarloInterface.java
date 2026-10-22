@@ -1,3 +1,4 @@
+// CODIGO DE MARCOS GARCÍA BLANCO
 import java.rmi.*;
 
 // Interface del método de montecarlo que se implementará en el servidor y se llamará desde el cliente

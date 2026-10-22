@@ -1,3 +1,4 @@
+// CODIGO DE MARCOS GARCÍA BLANCO
 import java.rmi.*;
 import java.rmi.registry.Registry;
 import java.rmi.registry.LocateRegistry;
