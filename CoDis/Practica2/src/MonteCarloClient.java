@@ -11,7 +11,6 @@ public class MonteCarloClient {
             System.exit(1);
         }
 
-
         int numeroArgs = args.length;
         int numeroSv = numeroArgs - 2; // los 2 primeros args son N y el tamaño del bloque
 
@@ -29,7 +28,7 @@ public class MonteCarloClient {
                 System.exit(1);
             }
             
-            MonteCarloInterface[] servidores = new MonteCarloInterface[numeroSv];
+            MonteCarloInterface[] servidores = new MonteCarloInterface[numeroSv]; // array de referencia a los objetos remotos
             String ipPuerto, urlReg;
             int numSvEncontrados = 0; // numero de servidores encontrados
             String[] direccionesEncontradas = new String[numeroSv]; // par ip:puerto de los servidores encontrados
@@ -79,8 +78,10 @@ public class MonteCarloClient {
                 aciertos += tareas[i].getRes(); // se suman los aciertos de cada hilo
             }
             tiempoFin = System.nanoTime(); // se detiene el cronometro
-            double resultado = (double) aciertos / numPts; // se calcula el resultado final
 
+            double resultado = (double) aciertos / numPts; // se calcula el resultado final
+            tiempoFin = System.nanoTime(); // se detiene el cronometro
+            
             // Impresiones finales por pantalla
             System.out.println("Puntos totales:    " + numPts);
             System.out.println("Puntos bajo curva: " + aciertos);

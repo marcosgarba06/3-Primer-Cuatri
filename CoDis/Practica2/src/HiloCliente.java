@@ -7,7 +7,7 @@ import java.rmi.*;
  */
 
 public class HiloCliente implements Runnable {
-    private final MonteCarloInterface sv;
+    private final MonteCarloInterface sv; // referencia al servidor remoto al que se le van a pedir los bloques de puntos
 
     // atributos estáticos compartidos por todos los hilos (todos tienen los mismos pendientes y tamBloque)
     private static long pendientes; // puntos que todavía no se han repartido
@@ -20,6 +20,7 @@ public class HiloCliente implements Runnable {
         this.sv = sv;
         this.res = 0;
     }
+
     // getters
     public long getRes() {
         return res;

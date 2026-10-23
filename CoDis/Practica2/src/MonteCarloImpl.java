@@ -4,7 +4,8 @@ import java.rmi.server.*;
 import java.util.Random;
 
 public class MonteCarloImpl extends UnicastRemoteObject implements MonteCarloInterface {
-  
+    // extends unicastRemoteObject para que el objeto pueda recibir llamadas remotas
+    // esto crea un socket en el puerto 0 (cualquier puerto libre) y lo deja a la escucha
    public MonteCarloImpl() throws RemoteException {
       super( );
    }
