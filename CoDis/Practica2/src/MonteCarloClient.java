@@ -77,11 +77,10 @@ public class MonteCarloClient {
                 hilos[i].join(); // se espera a que acabe el hilo
                 aciertos += tareas[i].getRes(); // se suman los aciertos de cada hilo
             }
-            tiempoFin = System.nanoTime(); // se detiene el cronometro
 
             double resultado = (double) aciertos / numPts; // se calcula el resultado final
             tiempoFin = System.nanoTime(); // se detiene el cronometro
-            
+
             // Impresiones finales por pantalla
             System.out.println("Puntos totales:    " + numPts);
             System.out.println("Puntos bajo curva: " + aciertos);
